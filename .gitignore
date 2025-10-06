@@ -1,0 +1,4 @@
+config.py
+git
+*.pyc
+__pycache__/
