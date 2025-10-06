@@ -52,6 +52,7 @@ async def managers(message: Message):
         await message.answer(text)
 
 
+
 async def main():
     await functional_man.creat_table_managers()
     await functional_buy.creat_table_buyer()

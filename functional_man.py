@@ -1,6 +1,7 @@
 import aiomysql
 import random
 from config import user, host, password, db_name
+import functional_buy
 
 pool = None
 
@@ -110,25 +111,32 @@ async def open_state(tg_id: int):
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
+                g = await functional_buy.queue()
                 l = await cheek_man('tg_id')
                 if tg_id in l:
                     select = f"SELECT work_status FROM `managers` WHERE tg_id={tg_id};"
-                    await cursor.execute(select, tg_id)
+                    await cursor.execute(select)
                     cur = await cursor.fetchall()
                     cur = cur[0]
                     if 'open' in cur:
                         insert = "UPDATE `managers`" \
                                  "SET state='free'," \
                                  "buyer_id= 0 " \
-                                 "WHERE tg_id=%s;"
-                        await cursor.execute(insert, tg_id)
+                                 f"WHERE tg_id={tg_id};"
+                        await cursor.execute(insert)
                         await conn.commit()
-                        c = "скоро соединим с покупателем"
+                        if len(g) != 0:
+                            await close_state(tg_id, int(g[0]))
+                            c = "Соединяем с покупателем"
+                        else:
+                            c = "скоро соединим с покупателем"
                     else:
                         c = 'смена не открыта'
                 else:
                     c = "Вы не являетесь работником магазина"
         await close_pool()
+        if c == "Соединяем с покупателем":
+            await functional_buy.delete_buy(int(g[0]))
         return c
     except Exception as ex:
         await close_pool()

@@ -84,8 +84,8 @@ async def delete_buy(buy_id: int):
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                delete = "DELETE FROM `managers` WHERE buy_id=%s;"
-                await cursor.execute(delete, buy_id)
+                delete = f"DELETE FROM `buyer` WHERE buy_id={buy_id};"
+                await cursor.execute(delete)
                 await conn.commit()
         await close_pool()
     except Exception as ex:
