@@ -65,13 +65,18 @@ async def distribution(buy_id: int):
                                 "VALUES (%s);"
                     await cursor.execute(add_buyer, buy_id)
                     await conn.commit()
+                    c = await queue()
+                    return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
+                            f"В очереди сейчас{len(c)}")
                 else:
                     man = random.choice(l)
                     await functional_man.close_state(int(man), buy_id)
+                    return "Сейчас подключится менеджер"
         await close_pool()
     except Exception as ex:
+        return str(ex)
+    finally:
         await close_pool()
-        print(ex)
 
 
 async def delete_buy(buy_id: int):
@@ -86,3 +91,22 @@ async def delete_buy(buy_id: int):
     except Exception as ex:
         await close_pool()
         print(ex)
+
+
+async def queue():
+    l = []
+    try:
+        await init_pool()
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                select = "SELECT * FROM `buyer`"
+                await cursor.execute(select)
+                cur = await cursor.fetchall()
+                for k in cur:
+                    for z in k:
+                        l.append(z)
+        await close_pool()
+        return l
+    except Exception as ex:
+        await close_pool()
+        return ex

@@ -35,33 +35,21 @@ async def managers(message: Message):
             name = 'not username'
         t = await functional_man.registration(tg_id, name)
         await message.answer(text=t)
-        if message.text.lower() == "увольняюсь":
-            t = await functional_man.delete_man(message.from_user.username)
-            await message.answer(t)
-
-
-@dp.message
-async def status(message: Message):
-    if message.text.lower() == "открыть смену":
+    elif message.text.lower() == "увольняюсь":
+        t = await functional_man.delete_man(message.from_user.username)
+        await message.answer(t)
+    elif message.text.lower() == "открыть смену":
         c = await functional_man.open_status(message.from_user.id)
         await message.answer(c)
-    if message.text.lower() == "закрыть смену":
+    elif message.text.lower() == "закрыть смену":
         c = await functional_man.close_status(message.from_user.id)
         await message.answer(c)
-
-
-@dp.message
-async def state(message: Message):
-    if message.text.lower() == "готов к покупателям":
+    elif message.text.lower() == "готов к покупателям":
         c = await functional_man.open_state(message.from_user.id)
         await message.answer(c)
-
-
-@dp.message
-async def menn(message: Message):
-    if message.text == '/manager':
-        await bot.send_message(53487, 'dvreagv')
-        #должны проверить свободных менеджеров и соединить их с покупателем
+    elif message.text == '/manager':
+        text = await functional_buy.distribution(message.from_user.id)
+        await message.answer(text)
 
 
 async def main():

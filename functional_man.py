@@ -168,7 +168,7 @@ async def cheek_free_managers():
         return l
     except Exception as ex:
         await close_pool()
-        print(ex)
+        return str(ex)
 
 
 async def for_me():
