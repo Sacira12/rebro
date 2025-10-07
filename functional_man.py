@@ -6,7 +6,7 @@ import functional_buy
 pool = None
 
 
-async def init_pool():
+async def init_pool():  #инициализирует соединение с базой mysql
     global pool
     pool = await aiomysql.create_pool(
         host=host,
@@ -17,12 +17,12 @@ async def init_pool():
     )
 
 
-async def close_pool():
+async def close_pool():  #закрывает соединение с базой mysql
     pool.close()
     await pool.wait_closed()
 
 
-async def creat_table_managers():
+async def creat_table_managers():  #создает таблицу мэнэджеров
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -39,7 +39,7 @@ async def creat_table_managers():
         return ex
 
 
-async def registration(tg_id: int, manager_tag: str):
+async def registration(tg_id: int, manager_tag: str):  #регистрирует менеджера в таблицу
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -60,7 +60,7 @@ async def registration(tg_id: int, manager_tag: str):
         return str(ex)
 
 
-async def open_status(tg_id: int):
+async def open_status(tg_id: int):  #открывает смену
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -82,7 +82,7 @@ async def open_status(tg_id: int):
         return str(ex)
 
 
-async def close_status(tg_id: int):
+async def close_status(tg_id: int): #закрывает смену
     try:
         await init_pool()
         async with pool.acquire() as conn:
@@ -106,7 +106,7 @@ async def close_status(tg_id: int):
         return str(ex)
 
 
-async def open_state(tg_id: int):
+async def open_state(tg_id: int):  #открывает поиск покупателей
     try:
         await init_pool()
         async with pool.acquire() as conn:
@@ -143,7 +143,7 @@ async def open_state(tg_id: int):
         return str(ex)
 
 
-async def close_state(tg_id: int, buy_id: int):
+async def close_state(tg_id: int, buy_id: int):  # закрывает поиск покупателей
     try:
         await init_pool()
         async with pool.acquire() as conn:
@@ -160,7 +160,7 @@ async def close_state(tg_id: int, buy_id: int):
         print(ex)
 
 
-async def cheek_free_managers():
+async def cheek_free_managers(): #возвращает список свободный для общения менеджеров
     l = []
     try:
         await init_pool()
@@ -196,7 +196,7 @@ async def for_me():
         print(ex)
 
 
-async def delete_man(manager_tag: str):
+async def delete_man(manager_tag: str):  #удаляет мэнэджера из субд
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -216,7 +216,7 @@ async def delete_man(manager_tag: str):
         return ex
 
 
-async def cheek_man(s: str):
+async def cheek_man(s: str):  #проверяет наличие менеджера в таблице субд
     c = []
     try:
         await init_pool()

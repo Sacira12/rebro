@@ -6,7 +6,7 @@ import functional_man
 pool = None
 
 
-async def init_pool():
+async def init_pool():  #инициализирует соединение с базой mysql
     global pool
     pool = await aiomysql.create_pool(
         host=host,
@@ -17,12 +17,12 @@ async def init_pool():
     )
 
 
-async def close_pool():
+async def close_pool():  #закрывает соединение с базой mysql
     pool.close()
     await pool.wait_closed()
 
 
-async def creat_table_buyer():
+async def creat_table_buyer():  #создает таблицу ожидающих покупателей
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -35,7 +35,7 @@ async def creat_table_buyer():
         print(ex)
 
 
-async def derivation_buyer():  #выводим всех ожидающих покупателей
+async def derivation_buyer():  #выводим всех ожидающих покупателей/очередь
     c = []
     try:
         await init_pool()
@@ -54,7 +54,7 @@ async def derivation_buyer():  #выводим всех ожидающих по�
         print(ex)
 
 
-async def distribution(buy_id: int):
+async def distribution(buy_id: int):  #перенаправляет покупателей на менеджеров
     l = await functional_man.cheek_free_managers()
     try:
         await init_pool()
@@ -65,7 +65,7 @@ async def distribution(buy_id: int):
                                 "VALUES (%s);"
                     await cursor.execute(add_buyer, buy_id)
                     await conn.commit()
-                    c = await queue()
+                    c = await derivation_buyer()
                     return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
                             f"В очереди сейчас{len(c)}")
                 else:
@@ -79,7 +79,7 @@ async def distribution(buy_id: int):
         await close_pool()
 
 
-async def delete_buy(buy_id: int):
+async def delete_buy(buy_id: int):  #удаляем покупателя из субд
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -91,22 +91,3 @@ async def delete_buy(buy_id: int):
     except Exception as ex:
         await close_pool()
         print(ex)
-
-
-async def queue():
-    l = []
-    try:
-        await init_pool()
-        async with pool.acquire() as conn:
-            async with conn.cursor() as cursor:
-                select = "SELECT * FROM `buyer`"
-                await cursor.execute(select)
-                cur = await cursor.fetchall()
-                for k in cur:
-                    for z in k:
-                        l.append(z)
-        await close_pool()
-        return l
-    except Exception as ex:
-        await close_pool()
-        return ex
