@@ -27,7 +27,7 @@ async def creat_table_buyer():  #создает таблицу ожидающи�
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                creat = "CREATE TABLE IF NOT EXISTS `buyer`(buy_id INT);"
+                creat = "CREATE TABLE IF NOT EXISTS `buyer`(buy_id BIGINT);"
                 await cursor.execute(creat)
         await close_pool()
     except Exception as ex:
@@ -51,7 +51,8 @@ async def derivation_buyer():  #выводим всех ожидающих по�
         return c
     except Exception as ex:
         await close_pool()
-        print(ex)
+        print("derivation_buyer")
+        return False
 
 
 async def distribution(buy_id: int):  #перенаправляет покупателей на менеджеров
@@ -62,18 +63,23 @@ async def distribution(buy_id: int):  #перенаправляет покупа
             async with conn.cursor() as cursor:
                 if len(l) == 0:
                     add_buyer = "INSERT INTO `buyer`(buy_id)" \
-                                "VALUES (%s);"
-                    await cursor.execute(add_buyer, buy_id)
+                                f"VALUES ({buy_id});"
+                    await cursor.execute(add_buyer)
                     await conn.commit()
                     c = await derivation_buyer()
-                    return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
-                            f"В очереди сейчас{len(c)}")
+                    if c == False:
+                        print("False")
+                        return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
+                                f"Ваш номер 1")
+                    else:
+                        return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
+                                f"Ваш номер {len(c)}")
                 else:
                     man = random.choice(l)
                     await functional_man.close_state(int(man), buy_id)
                     return "Сейчас подключится менеджер"
-        await close_pool()
     except Exception as ex:
+        print("distribution")
         return str(ex)
     finally:
         await close_pool()

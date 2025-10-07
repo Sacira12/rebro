@@ -6,8 +6,6 @@ from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-# Вместо BOT TOKEN HERE нужно вставить токен вашего бота,
-# полученный у @BotFather
 BOT_TOKEN = config.bot_token  # вставляем токен вашего бота
 pin = config.pin
 # Создаем объекты бота и диспетчера
@@ -63,9 +61,20 @@ async def process_open_state_command(message: Message):
 async def process_search_manager_command(message: Message):
     text = await functional_buy.distribution(message.from_user.id)
     await message.answer(text)
+
+
 # этот хэндлер срабатывает на остальные сообщения
-# @dp.message()
-# async def managers(message: Message):
+@dp.message()
+async def chat(message: Message):
+    text = message.text
+    l = await functional_man.search_two_id_man(message.from_user.id)
+    man_id = int(l[0])
+    buy_id = int(l[1])
+    print(l)
+    if message.from_user.id == man_id:
+        await bot.send_message(buy_id, text)
+    else:
+        await bot.send_message(man_id, text)
 
 
 async def main():

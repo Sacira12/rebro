@@ -111,7 +111,7 @@ async def open_state(tg_id: int):  #открывает поиск покупат
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                g = await functional_buy.queue()
+                g = await functional_buy.derivation_buyer()
                 l = await cheek_man('tg_id')
                 if tg_id in l:
                     select = f"SELECT work_status FROM `managers` WHERE tg_id={tg_id};"
@@ -233,3 +233,31 @@ async def cheek_man(s: str):  #проверяет наличие менедже�
     except Exception as ex:
         await close_pool()
         return ex
+
+
+async def search_two_id_man(tg_id: int):
+    l=[]
+    try:
+        await init_pool()
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                c = await cheek_man("tg_id")
+                if tg_id in c:
+                    man = f"SELECT tg_id FROM `managers` WHERE tg_id={tg_id};"
+                    buy = f"SELECT buyer_id FROM `managers` WHERE tg_id={tg_id};"
+                else:
+                    man = f"SELECT tg_id FROM `managers` WHERE buyer_id={tg_id};"
+                    buy = f"SELECT buyer_id FROM `managers` WHERE buyer_id={tg_id};"
+                await cursor.execute(man)
+                cur = await cursor.fetchone()
+                l.append(cur[0])
+                await cursor.execute(buy)
+                cur = await cursor.fetchone()
+                l.append(cur[0])
+        await close_pool()
+        return l
+    except Exception as ex:
+        await close_pool()
+        return str(ex)
+
+
