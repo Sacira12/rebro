@@ -63,6 +63,13 @@ async def process_search_manager_command(message: Message):
     await message.answer(text)
 
 
+@dp.message(Command(commands="dialog_stop"))
+async def process_dialog_stop_command(message: Message):
+    await functional_man.open_state(message.from_user.id)
+    await message.answer("Диалог закончен\n"
+                         "Скоро найдем другого покупателя")
+
+
 # этот хэндлер срабатывает на остальные сообщения
 @dp.message()
 async def chat(message: Message):
