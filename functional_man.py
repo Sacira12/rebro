@@ -127,7 +127,8 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                         await conn.commit()
                         if len(g) != 0:
                             await close_state(tg_id, int(g[0]))
-                            c = "Соединяем с покупателем"
+                            c = ("Покупатель найден\n"
+                                 "Можете начинать диалог")
                         else:
                             c = "скоро соединим с покупателем"
                     else:

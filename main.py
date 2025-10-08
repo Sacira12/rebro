@@ -59,8 +59,12 @@ async def process_open_state_command(message: Message):
 
 @dp.message(Command(commands="manager"))
 async def process_search_manager_command(message: Message):
-    text = await functional_buy.distribution(message.from_user.id)
-    await message.answer(text)
+    l = await functional_man.check_man("tg_id")
+    if message.from_user.id in l:
+        await message.answer("Вы менеджер, задайте вопрос сами себе")
+    else:
+        text = await functional_buy.distribution(message.from_user.id)
+        await message.answer(text)
 
 
 @dp.message(Command(commands="dialog_stop"))
@@ -72,12 +76,9 @@ async def process_dialog_stop_command(message: Message):
 @dp.message(Command(commands="queue"))
 async def check_queue_command(message: Message):
     l = await functional_man.check_man("tg_id")
-    if message.from_user.id  in l:
+    if message.from_user.id in l:
         t = await functional_buy.queue_buyer()
-        if t == False:
-            await message.answer("Очередь пустая")
-        else:
-            await message.answer(f"В очереди сейчас: {len(t)}")
+        await message.answer(f"В очереди сейчас: {len(t)}")
     else:
         await message.answer("Вы не являетесь работником магазина")
 

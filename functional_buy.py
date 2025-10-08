@@ -74,7 +74,8 @@ async def distribution(buy_id: int):  #перенаправляет покупа
                 else:
                     man = random.choice(l)
                     await functional_man.close_state(int(man), buy_id)
-                    return "Сейчас подключится менеджер"
+                    return ("Сейчас подключится менеджер\n"
+                            "Можете задать свой вопрос")
     except Exception as ex:
         return str(ex)
     finally:
