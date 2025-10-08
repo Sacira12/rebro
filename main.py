@@ -98,8 +98,15 @@ async def process_search_manager_command(message: Message):
 
 @dp.message(Command(commands="dialog_stop"))
 async def process_dialog_stop_command(message: Message):
-    t = await functional_man.open_state(message.from_user.id)
-    await message.answer(t)
+    text = await functional_man.open_state(message.from_user.id)
+    if text == ("Покупатель найден\n"
+             "Можете начинать диалог"):
+        l = await functional_man.search_two_id_man(message.from_user.id)
+        buy_id = int(l[1])
+        await bot.send_message(chat_id=buy_id, text="Сейчас подключится менеджер, можете задать свой вопрос")
+        await message.answer(text)
+    else:
+        await message.answer(text)
 
 
 @dp.message(Command(commands="queue"))
