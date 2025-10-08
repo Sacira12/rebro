@@ -16,6 +16,7 @@ dp = Dispatcher()
 # Этот хэндлер будет срабатывать на команду "/start"
 @dp.message(CommandStart())
 async def process_start_command(message: Message):
+    await functional_buy.registration_buyer(message.from_user.id, message.from_user.username)
     await message.answer(
         'начинаем работу'
     )
@@ -33,7 +34,9 @@ async def help(message: Message):
                              '"/queue" - просмотр количества ожидающих покупателей')
     else:
         await message.answer("Доступные команды:\n"
-                             '"/manager" - поиск свободного менеджера')
+                             '"/manager" - поиск свободного менеджера\n'
+                             '"/assortment" - узнать ассортимент магазина\n'
+                             '"/payment_method" - способы оплаты')
 
 
 @dp.message(Command(commands=pin))
@@ -46,6 +49,7 @@ async def process_register_command(message: Message):
         name = 'not username'
     t = await functional_man.registration(tg_id, name)
     await message.answer(text=t)
+    await functional_buy.delete_buy(message.from_user.id)
 
 
 @dp.message(Command(commands="delete_me"))

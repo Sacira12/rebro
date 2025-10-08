@@ -27,11 +27,31 @@ async def creat_table_buyer():  #создает таблицу ожидающи�
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                creat = "CREATE TABLE IF NOT EXISTS `buyer`(buy_id BIGINT);"
+                creat = ("CREATE TABLE IF NOT EXISTS `buyer`(buy_id BIGINT,"
+                         "buy_name VARCHAR(32),"
+                         "search_managers CHAR(5) DEFAULT ('close'),"
+                         "last_update DATE DEFAULT (CURRENT_DATE()),"
+                         "command VARCHAR(500) DEFAULT (''));")
                 await cursor.execute(creat)
         await close_pool()
     except Exception as ex:
+        print(str(ex))
         await close_pool()
+
+
+async def registration_buyer(buy_id: int, buy_tag: str):  #регистрирует менеджера в таблицу
+    try:
+        await init_pool()
+        async with pool.acquire() as conn:  # получаем соединение из пула
+            async with conn.cursor() as cursor:
+                add_manager = "INSERT INTO `buyer`(buy_id,buy_name,last_update)" \
+                                f"VALUES ({buy_id}, '{buy_tag}',CURRENT_DATE());"
+                await cursor.execute(add_manager)
+                await conn.commit()
+        await close_pool()
+    except Exception as ex:
+        await close_pool()
+        print(str(ex))
 
 
 async def queue_buyer():  #выводим всех ожидающих покупателей/очередь
@@ -40,7 +60,7 @@ async def queue_buyer():  #выводим всех ожидающих покуп
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                select = "SELECT * FROM `buyer`;"
+                select = "SELECT buy_id FROM `buyer`;"
                 await cursor.execute(select)
                 cur = await cursor.fetchall()
                 for k in cur:

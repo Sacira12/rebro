@@ -3,3 +3,4 @@ git
 *.pyc
 /__pycache__
 .idea
+assortment.txt

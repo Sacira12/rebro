@@ -56,7 +56,6 @@ async def registration(tg_id: int, manager_tag: str):  #регистрирует
         return c
     except Exception as ex:
         await close_pool()
-        return str(ex)
 
 
 async def open_status(tg_id: int):  #открывает смену
