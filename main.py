@@ -21,6 +21,21 @@ async def process_start_command(message: Message):
     )
 
 
+@dp.message(Command(commands="help"))
+async def help(message: Message):
+    l = await functional_man.check_man("tg_id")
+    if message.from_user.id in l:
+        await message.answer("Доступные команды:\n"
+                             '"/open_shift" - открытие смены\n'
+                             '"/close_shift" - закрытие смены\n'
+                             '"/ready_for_buyer" - поиск ожидающих покупателей\n'
+                             '"/dialog_stop" - закрыть диалог с покупателем и найти следующего ожидающего покупателя\n'
+                             '"/queue" - просмотр количества ожидающих покупателей')
+    else:
+        await message.answer("Доступные команды:\n"
+                             '"/manager" - поиск свободного менеджера')
+
+
 @dp.message(Command(commands=pin))
 async def process_register_command(message: Message):
     tg_id = message.chat.id
@@ -86,14 +101,16 @@ async def check_queue_command(message: Message):
 # этот хэндлер срабатывает на остальные сообщения
 @dp.message()
 async def chat(message: Message):
-    # text = message.text
-    l = await functional_man.search_two_id_man(message.from_user.id)
-    man_id = int(l[0])
-    buy_id = int(l[1])
-    if message.from_user.id == man_id:
-        await message.send_copy(chat_id=buy_id)
-    else:
-        await message.send_copy(chat_id=man_id)
+    try:
+        l = await functional_man.search_two_id_man(message.from_user.id)
+        man_id = int(l[0])
+        buy_id = int(l[1])
+        if message.from_user.id == man_id:
+            await message.send_copy(chat_id=buy_id)
+        else:
+            await message.send_copy(chat_id=man_id)
+    except:
+        await message.answer("У вас нет открытого диалога")
 
 
 async def main():

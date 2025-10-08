@@ -1,5 +1,4 @@
 import aiomysql
-import random
 from config import user, host, password, db_name
 import functional_buy
 
