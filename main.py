@@ -69,7 +69,14 @@ async def process_close_shift_command(message: Message):
 @dp.message(Command(commands="ready_for_buyer"))
 async def process_open_state_command(message: Message):
     c = await functional_man.open_state(message.from_user.id)
-    await message.answer(c)
+    if c == ("Покупатель найден\n"
+            "Можете начинать диалог"):
+        l = await functional_man.search_two_id_man(message.from_user.id)
+        buy_id = int(l[1])
+        await bot.send_message(chat_id=buy_id, text="Сейчас подключится менеджер, можете задать свой вопрос")
+        await message.answer(c)
+    else:
+        await message.answer(c)
 
 
 @dp.message(Command(commands="manager"))
@@ -79,7 +86,14 @@ async def process_search_manager_command(message: Message):
         await message.answer("Вы менеджер, задайте вопрос сами себе")
     else:
         text = await functional_buy.distribution(message.from_user.id)
-        await message.answer(text)
+        if text == ("Сейчас подключится менеджер\n"
+                    "Можете задать свой вопрос"):
+            l = await functional_man.search_two_id_man(message.from_user.id)
+            man_id = int(l[0])
+            await bot.send_message(chat_id=man_id, text="Покупатель подключился, можете начинать диалог")
+            await message.answer(text)
+        else:
+            await message.answer(text)
 
 
 @dp.message(Command(commands="dialog_stop"))
