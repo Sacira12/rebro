@@ -32,10 +32,9 @@ async def creat_table_buyer():  #создает таблицу ожидающи�
         await close_pool()
     except Exception as ex:
         await close_pool()
-        print(ex)
 
 
-async def derivation_buyer():  #выводим всех ожидающих покупателей/очередь
+async def queue_buyer():  #выводим всех ожидающих покупателей/очередь
     c = []
     try:
         await init_pool()
@@ -51,12 +50,11 @@ async def derivation_buyer():  #выводим всех ожидающих по�
         return c
     except Exception as ex:
         await close_pool()
-        print("derivation_buyer")
         return False
 
 
 async def distribution(buy_id: int):  #перенаправляет покупателей на менеджеров
-    l = await functional_man.cheek_free_managers()
+    l = await functional_man.check_free_managers()
     try:
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
@@ -66,9 +64,8 @@ async def distribution(buy_id: int):  #перенаправляет покупа
                                 f"VALUES ({buy_id});"
                     await cursor.execute(add_buyer)
                     await conn.commit()
-                    c = await derivation_buyer()
-                    if c == False:
-                        print("False")
+                    c = await queue_buyer()
+                    if len(c) == 0:
                         return ("Сейчас все менеджеры заняты, вас обслужат как только менеджеры освободятся\n"
                                 f"Ваш номер 1")
                     else:
@@ -79,7 +76,6 @@ async def distribution(buy_id: int):  #перенаправляет покупа
                     await functional_man.close_state(int(man), buy_id)
                     return "Сейчас подключится менеджер"
     except Exception as ex:
-        print("distribution")
         return str(ex)
     finally:
         await close_pool()
@@ -96,4 +92,3 @@ async def delete_buy(buy_id: int):  #удаляем покупателя из с
         await close_pool()
     except Exception as ex:
         await close_pool()
-        print(ex)

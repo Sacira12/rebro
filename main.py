@@ -65,23 +65,34 @@ async def process_search_manager_command(message: Message):
 
 @dp.message(Command(commands="dialog_stop"))
 async def process_dialog_stop_command(message: Message):
-    await functional_man.open_state(message.from_user.id)
-    await message.answer("Диалог закончен\n"
-                         "Скоро найдем другого покупателя")
+    t = await functional_man.open_state(message.from_user.id)
+    await message.answer(t)
+
+
+@dp.message(Command(commands="queue"))
+async def check_queue_command(message: Message):
+    l = await functional_man.check_man("tg_id")
+    if message.from_user.id  in l:
+        t = await functional_buy.queue_buyer()
+        if t == False:
+            await message.answer("Очередь пустая")
+        else:
+            await message.answer(f"В очереди сейчас: {len(t)}")
+    else:
+        await message.answer("Вы не являетесь работником магазина")
 
 
 # этот хэндлер срабатывает на остальные сообщения
 @dp.message()
 async def chat(message: Message):
-    text = message.text
+    # text = message.text
     l = await functional_man.search_two_id_man(message.from_user.id)
     man_id = int(l[0])
     buy_id = int(l[1])
-    print(l)
     if message.from_user.id == man_id:
-        await bot.send_message(buy_id, text)
+        await message.send_copy(chat_id=buy_id)
     else:
-        await bot.send_message(man_id, text)
+        await message.send_copy(chat_id=man_id)
 
 
 async def main():

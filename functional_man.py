@@ -44,7 +44,7 @@ async def registration(tg_id: int, manager_tag: str):  #регистрирует
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                l = await cheek_man('tg_id')
+                l = await check_man('tg_id')
                 if tg_id in l:
                     return "Вы были раннее уже зарегестрированы."
                 else:
@@ -65,7 +65,7 @@ async def open_status(tg_id: int):  #открывает смену
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                l = await cheek_man('tg_id')
+                l = await check_man('tg_id')
                 if tg_id in l:
                     insert = "UPDATE `managers`" \
                              "SET work_status='open'" \
@@ -87,7 +87,7 @@ async def close_status(tg_id: int): #закрывает смену
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                l = await cheek_man('tg_id')
+                l = await check_man('tg_id')
                 if tg_id in l:
                     insert = "UPDATE `managers`" \
                              "SET work_status='close'," \
@@ -111,8 +111,8 @@ async def open_state(tg_id: int):  #открывает поиск покупат
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                g = await functional_buy.derivation_buyer()
-                l = await cheek_man('tg_id')
+                g = await functional_buy.queue_buyer()
+                l = await check_man('tg_id')
                 if tg_id in l:
                     select = f"SELECT work_status FROM `managers` WHERE tg_id={tg_id};"
                     await cursor.execute(select)
@@ -157,10 +157,10 @@ async def close_state(tg_id: int, buy_id: int):  # закрывает поиск
         await close_pool()
     except Exception as ex:
         await close_pool()
-        print(ex)
 
 
-async def cheek_free_managers(): #возвращает список свободный для общения менеджеров
+
+async def check_free_managers(): #возвращает список свободный для общения менеджеров
     l = []
     try:
         await init_pool()
@@ -179,21 +179,21 @@ async def cheek_free_managers(): #возвращает список свобод
         return str(ex)
 
 
-async def for_me():
-    try:
-        await init_pool()
-        async with pool.acquire() as conn:  # получаем соединение из пула
-            async with conn.cursor() as cursor:
-                select = "SELECT * FROM `managers`;"
-                await cursor.execute(select)
-                cur = await cursor.fetchall()
-                for cu in cur:
-                    print(cu)
-        print(cur)
-        await close_pool()
-    except Exception as ex:
-        await close_pool()
-        print(ex)
+# async def for_me():
+#     try:
+#         await init_pool()
+#         async with pool.acquire() as conn:  # получаем соединение из пула
+#             async with conn.cursor() as cursor:
+#                 select = "SELECT * FROM `managers`;"
+#                 await cursor.execute(select)
+#                 cur = await cursor.fetchall()
+#                 for cu in cur:
+#                     print(cu)
+#         print(cur)
+#         await close_pool()
+#     except Exception as ex:
+#         await close_pool()
+#         print(ex)
 
 
 async def delete_man(manager_tag: str):  #удаляет мэнэджера из субд
@@ -201,7 +201,7 @@ async def delete_man(manager_tag: str):  #удаляет мэнэджера из
         await init_pool()
         async with pool.acquire() as conn:  # получаем соединение из пула
             async with conn.cursor() as cursor:
-                l = await cheek_man('manager_tag')
+                l = await check_man('manager_tag')
                 if manager_tag not in l:
                     с = "Вас нет в базе данных"
                 else:
@@ -216,7 +216,7 @@ async def delete_man(manager_tag: str):  #удаляет мэнэджера из
         return ex
 
 
-async def cheek_man(s: str):  #проверяет наличие менеджера в таблице субд
+async def check_man(s: str):  #проверяет наличие менеджера в таблице субд
     c = []
     try:
         await init_pool()
@@ -241,7 +241,7 @@ async def search_two_id_man(tg_id: int):
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
-                c = await cheek_man("tg_id")
+                c = await check_man("tg_id")
                 if tg_id in c:
                     man = f"SELECT tg_id FROM `managers` WHERE tg_id={tg_id};"
                     buy = f"SELECT buyer_id FROM `managers` WHERE tg_id={tg_id};"
