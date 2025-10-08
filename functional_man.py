@@ -30,7 +30,7 @@ async def creat_table_managers():  #создает таблицу мэнэдже
                         "tg_id BIGINT," \
                         "work_status CHAR(5) DEFAULT ('close')," \
                         "state CHAR(5) DEFAULT ('busy')," \
-                        "buyer_id INT DEFAULT 0, PRIMARY KEY (manager_tag));"
+                        "buyer_id BIGINT DEFAULT 0, PRIMARY KEY (manager_tag));"
                 await  cursor.execute(creat)
         await close_pool()
     except Exception as ex:
@@ -81,7 +81,7 @@ async def open_status(tg_id: int):  #открывает смену
         return str(ex)
 
 
-async def close_status(tg_id: int): #закрывает смену
+async def close_status(tg_id: int):  #закрывает смену
     try:
         await init_pool()
         async with pool.acquire() as conn:
@@ -113,6 +113,7 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                 g = await functional_buy.queue_buyer()
                 l = await check_man('tg_id')
                 if tg_id in l:
+                    print(tg_id)
                     select = f"SELECT work_status FROM `managers` WHERE tg_id={tg_id};"
                     await cursor.execute(select)
                     cur = await cursor.fetchall()
@@ -125,6 +126,7 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                         await cursor.execute(insert)
                         await conn.commit()
                         if len(g) != 0:
+                            print(g[0])
                             await close_state(tg_id, int(g[0]))
                             c = ("Покупатель найден\n"
                                  "Можете начинать диалог")
@@ -145,6 +147,7 @@ async def open_state(tg_id: int):  #открывает поиск покупат
 
 async def close_state(tg_id: int, buy_id: int):  # закрывает поиск покупателей
     try:
+        print(buy_id)
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
@@ -157,10 +160,10 @@ async def close_state(tg_id: int, buy_id: int):  # закрывает поиск
         await close_pool()
     except Exception as ex:
         await close_pool()
+        print(str(ex))
 
 
-
-async def check_free_managers(): #возвращает список свободный для общения менеджеров
+async def check_free_managers():  #возвращает список свободный для общения менеджеров
     l = []
     try:
         await init_pool()
@@ -236,7 +239,7 @@ async def check_man(s: str):  #проверяет наличие менедже�
 
 
 async def search_two_id_man(tg_id: int):
-    l=[]
+    l = []
     try:
         await init_pool()
         async with pool.acquire() as conn:
@@ -259,5 +262,3 @@ async def search_two_id_man(tg_id: int):
     except Exception as ex:
         await close_pool()
         return str(ex)
-
-

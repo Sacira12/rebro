@@ -95,7 +95,8 @@ async def check_queue_command(message: Message):
         t = await functional_buy.queue_buyer()
         await message.answer(f"В очереди сейчас: {len(t)}")
     else:
-        await message.answer("Вы не являетесь работником магазина")
+        await message.answer("Вы не являетесь работником магазина\n"
+                             "Чтобы начать диалог выполните команду /manager")
 
 
 # этот хэндлер срабатывает на остальные сообщения
