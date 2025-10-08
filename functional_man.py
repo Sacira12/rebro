@@ -113,7 +113,6 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                 g = await functional_buy.queue_buyer()
                 l = await check_man('tg_id')
                 if tg_id in l:
-                    print(tg_id)
                     select = f"SELECT work_status FROM `managers` WHERE tg_id={tg_id};"
                     await cursor.execute(select)
                     cur = await cursor.fetchall()
@@ -126,7 +125,6 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                         await cursor.execute(insert)
                         await conn.commit()
                         if len(g) != 0:
-                            print(g[0])
                             await close_state(tg_id, int(g[0]))
                             c = ("Покупатель найден\n"
                                  "Можете начинать диалог")
@@ -136,18 +134,15 @@ async def open_state(tg_id: int):  #открывает поиск покупат
                         c = 'смена не открыта'
                 else:
                     c = "Вы не являетесь работником магазина"
-        await close_pool()
-        if c == "Соединяем с покупателем":
-            await functional_buy.delete_buy(int(g[0]))
         return c
     except Exception as ex:
+        print(str(ex))
+    finally:
         await close_pool()
-        return str(ex)
 
 
 async def close_state(tg_id: int, buy_id: int):  # закрывает поиск покупателей
     try:
-        print(buy_id)
         await init_pool()
         async with pool.acquire() as conn:
             async with conn.cursor() as cursor:
@@ -157,10 +152,10 @@ async def close_state(tg_id: int, buy_id: int):  # закрывает поиск
                          f"WHERE tg_id={tg_id};"
                 await cursor.execute(insert)
                 await conn.commit()
+                await functional_buy.delete_buy(int(buy_id))
         await close_pool()
     except Exception as ex:
         await close_pool()
-        print(str(ex))
 
 
 async def check_free_managers():  #возвращает список свободный для общения менеджеров

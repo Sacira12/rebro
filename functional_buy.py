@@ -50,7 +50,6 @@ async def queue_buyer():  #выводим всех ожидающих покуп
         return c
     except Exception as ex:
         await close_pool()
-        return False
 
 
 async def distribution(buy_id: int):  #перенаправляет покупателей на менеджеров
